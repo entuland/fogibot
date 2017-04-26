@@ -1,0 +1,5 @@
+botname = "bot-name"
+ident = "bot-ident"
+realname = "bot-realname"
+owner = "bot-owner"
+password = "bot-password"
