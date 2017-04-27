@@ -11,6 +11,7 @@ host = "chat.freenode.net"
 port = 6667
 
 import config
+
 botname = config.botname
 ident = config.ident
 realname = config.realname
