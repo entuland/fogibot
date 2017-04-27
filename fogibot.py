@@ -1,7 +1,9 @@
-import logging
 import re
 import requests
 import socket
+import time
+
+import logger
 
 """ ============================================================================
     initial setup
@@ -26,23 +28,9 @@ s = socket.socket()
     logging setup
 ============================================================================ """
 
-logger = logging.getLogger(botname)
-logger.setLevel(logging.DEBUG)
-
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-log_file_handler = logging.FileHandler(botname + ".log")
-log_file_handler.setLevel(logging.DEBUG)
-log_file_handler.setFormatter(formatter)
-
-log_console_handler = logging.StreamHandler()
-log_console_handler.setLevel(logging.DEBUG)
-
-logger.addHandler(log_file_handler)
-logger.addHandler(log_console_handler)
-
-def log(msg):
-    logger.info(msg)
+log = logger.Logger(botname + " " + time.strftime("%Y-%m-%d"))
+log.level = log.ALL
+log.echo = True
 
 """ ============================================================================
     server functions
@@ -58,7 +46,7 @@ def get_chunk():
 
 def raw_send(msg, log_this = True):
     if log_this:
-        log(f"SENT: {msg}")
+        log.debug(f"SENT: {msg}")
     s.send(bytes(msg, "UTF-8"))
 
 def send_message(target, message):
@@ -142,9 +130,7 @@ def bot_command_help(name, channel, tokens):
 
 def bot_command_repaste(name, channel, tokens):
     if len(tokens):
-        log(tokens)
         pasteid = extract_pastebin_pasteid(tokens[0])
-        log(pasteid)
         if pasteid:
             scrape_pastebin(name, channel, pasteid)
             return
@@ -164,7 +150,7 @@ def get_url(url):
             return r.text
     except:
         pass
-    log(r.headers)
+    log.error(f"Unable to get [{url}]")
 
 def extract_pastebin_pasteid(message):
     pattern = "pastebin.com/((raw|dl|index|embed|report|print)/)?([\w\d]+)"
@@ -181,7 +167,7 @@ def get_alternative_link(text):
             return r.text.split("|", 1)[0].strip()
     except:
         pass
-    log(r.headers)
+    log.error(f"Unable to post to [{bin_service}]")
 
 def scrape_pastebin(name, channel, pasteid):
     pastebin_link = "https://pastebin.com/raw/" + pasteid
