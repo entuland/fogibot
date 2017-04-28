@@ -41,15 +41,20 @@ def connect():
     raw_send(f"USER {ident} {host} {password} :{realname} \r\n", False)
     raw_send(f"NICK {botname} \r\n")
 
-def get_lines():
-    get_lines.buffer += s.recv(512).decode("UTF-8")
-    parts = get_lines.buffer.split("\r\n")
-    if get_lines.buffer[-2:] != "\r\n":
-        get_lines.buffer = parts.pop()
-    else:
-        get_lines.buffer = ""
-    return parts
-get_lines.buffer = ""
+    
+class ChunkProcessor():
+ 
+	def __init__(self):
+		self._buffer = ""
+ 
+	def __call__(self, chunk):
+	    self._buffer += chunk	    
+	    lines = self._buffer.split("\r\n")
+	    lines = list(map(str.strip, lines))
+	    self._buffer = lines.pop()
+	    lines = list(filter(None, lines))	
+	    return lines 
+    
     
 def raw_send(msg, log_this = True):
     if log_this:
@@ -62,7 +67,7 @@ def send_message(target, message):
 
 def join_channel(channel):
     send_message(owner, f"attempting to join {channel}")
-    raw_send(f"JOIN {channel}\r\n")
+    raw_send(f"JOIN :{channel}\r\n")
 
 def pong(name):
     raw_send(f"PONG :{name}\r\n", False)
@@ -198,10 +203,9 @@ def pastebin_nag_message(name, channel):
 ============================================================================ """
 
 def main_loop():
+    get_lines = ChunkProcessor()
     while 1:
-        for line in get_lines():
-            if not line.strip():
-                continue
+        for line in get_lines(s.recv(512).decode("UTF-8")):
             name = channel = message = ""
             if line.find("PING :") == 0:
                 pong(line.split(":", 1)[1].strip())
