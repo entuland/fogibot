@@ -36,7 +36,7 @@ class Logger:
         logpath = basepath + "/logs/"
         os.makedirs(logpath, exist_ok = True)
         filename = logpath + logname + ".log"
-        self._file = open(filename, "a")
+        self._file = open(filename, "a", 1)
 
     # actual writing member
     def __write(self, level, *msg):
@@ -44,7 +44,7 @@ class Logger:
             leveltext = self._level[level]
             msg = " ".join(str(m) for m in msg)
             if self.echo:
-                print(leveltext, msg)
+                print(leveltext, msg, flush = True)
             date = time.strftime("%Y-%m-%d %H:%M:%S")
             self._file.write(" ".join((date, leveltext, msg, "\n")))
     
