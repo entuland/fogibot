@@ -41,12 +41,20 @@ def connect():
     raw_send(f"USER {ident} {host} {password} :{realname} \r\n", False)
     raw_send(f"NICK {botname} \r\n")
 
-def get_chunk():
-    return s.recv(2048).decode("UTF-8")
-
+def get_lines():
+    get_lines.buffer += s.recv(512).decode("UTF-8")
+    parts = get_lines.buffer.split("\r\n")
+    if get_lines.buffer[-2:] != "\r\n":
+        get_lines.buffer = parts.pop()
+    else:
+        get_lines.buffer = ""
+    return parts
+get_lines.buffer = ""
+    
 def raw_send(msg, log_this = True):
     if log_this:
-        log.debug(f"SENT: {msg}")
+        stripped = msg.strip("\r\n ")
+        log.debug(f"SENT: {stripped}")
     s.send(bytes(msg, "UTF-8"))
 
 def send_message(target, message):
@@ -191,20 +199,20 @@ def pastebin_nag_message(name, channel):
 
 def main_loop():
     while 1:
-        ircmsg = get_chunk().strip('\r\n')
-
-        name = channel = message = ""
-        
-        if ircmsg.find("PING :") == 0:
-            pong(ircmsg.split(":", 1)[1].strip())
-        else:
-            log(ircmsg)
-        if ircmsg.find("PRIVMSG") != -1:
-            name = ircmsg.split('!',1)[0][1:]
-            parts = ircmsg.split('PRIVMSG',1)[1].split(':',1)
-            channel = parts[0].strip()
-            message = parts[1].strip()
-            process_message(name, channel, message)
+        for line in get_lines():
+            if not line.strip():
+                continue
+            name = channel = message = ""
+            if line.find("PING :") == 0:
+                pong(line.split(":", 1)[1].strip())
+            else:
+                log(line)
+            if line.find("PRIVMSG") != -1:
+                name = line.split('!',1)[0][1:]
+                parts = line.split('PRIVMSG',1)[1].split(':',1)
+                channel = parts[0].strip()
+                message = parts[1].strip()
+                process_message(name, channel, message)
 
 """ ============================================================================
     program start
