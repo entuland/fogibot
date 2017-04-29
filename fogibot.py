@@ -106,6 +106,10 @@ class Bot:
         com.params = params
         com.livereload = self._livereload
         
+        com.target = com.channel
+        if com.channel == com.botname:
+            com.target = com.sender
+        
         com.run()
         
         self._livereload = com.livereload

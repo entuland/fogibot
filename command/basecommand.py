@@ -14,4 +14,4 @@ class BaseCommand:
         self.response = ""
         self.raw_send = ""
         self.livereload = False
-
+        
