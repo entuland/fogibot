@@ -1,5 +1,7 @@
-botname = "bot-name"
-ident = "bot-ident"
-realname = "bot-realname"
-owner = "bot-owner"
-password = "bot-password"
+host = "chat.example.com"
+port = 6667
+username = "username"
+password = "password"
+nickname = "nickname"
+realname = "realname"
+owner = "owner"
