@@ -23,37 +23,26 @@ class Connection:
         self._chunk_processor = ChunkProcessor()
         self._host = host
 
-    def _raw_send(self, msg, log_this = True):
+    def raw_send(self, msg, log_this = True):
+        msg = msg.strip("\r\n ")
         if log_this:
-            stripped = msg.strip("\r\n ")
-            self._logger.debug(f"SENT: {stripped}")
-        self._socket.send(bytes(msg, "UTF-8"))
-    
-    """ ========================================================================
-        public methods
-    ======================================================================== """
+            self._logger.debug(f"SENT: {msg}")
+        self._socket.send(bytes(msg + "\r\n", "UTF-8"))
     
     def user(self, username, password, realname):
-        self._raw_send(f"USER {username} {self._host} {password} :{realname} \r\n", False)
+        self.raw_send(f"USER {username} {self._host} {password} :{realname}", False)
     
     def nick(self, nickname):
-        self._raw_send(f"NICK {nickname}\r\n")
+        self.raw_send(f"NICK {nickname}")
                
     def send_message(self, target, message):
-        self._raw_send(f"PRIVMSG {target} :{message}\r\n")
-
-    def join_channel(self, channel):
-        self._raw_send(f"JOIN :{channel}\r\n")
+        self.raw_send(f"PRIVMSG {target} :{message}")
 
     def pong(self, name):
-        self._raw_send(f"PONG :{name}\r\n", False)
+        self.raw_send(f"PONG :{name}", False)
         
     def get_lines(self):
         chunk = self._socket.recv(512).decode("UTF-8")
         return self._chunk_processor(chunk)
-    
-    def quit(self, message):
-        self._raw_send(f"QUIT :{message}\r\n")
-
-        
+            
         

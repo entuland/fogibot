@@ -4,6 +4,6 @@ import config
 
 bot = fogibot.Bot(config)
 
-bot.process_owner_message(f"join ##{config.nickname}")
+bot.process_command(config.owner, config.botname, "join", "##" + config.botname)
 
 bot.run()
