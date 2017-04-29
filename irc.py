@@ -27,7 +27,8 @@ class Connection:
         msg = msg.strip("\r\n ")
         if log_this:
             self._logger.debug(f"SENT: {msg}")
-        self._socket.send(bytes(msg + "\r\n", "UTF-8"))
+        msg += "\r\n"
+        self._socket.send(msg.encode())
     
     def user(self, username, password, realname):
         self.raw_send(f"USER {username} {self._host} {password} :{realname}", False)
@@ -42,7 +43,7 @@ class Connection:
         self.raw_send(f"PONG :{name}", False)
         
     def get_lines(self):
-        chunk = self._socket.recv(512).decode("UTF-8")
+        chunk = self._socket.recv(512).decode()
         return self._chunk_processor(chunk)
             
         

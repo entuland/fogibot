@@ -1,7 +1,6 @@
 import os
 import time
 
-
 class Logger:
     
     # constants
@@ -46,7 +45,8 @@ class Logger:
             if self.echo:
                 print(leveltext, msg, flush = True)
             date = time.strftime("%Y-%m-%d %H:%M:%S")
-            self._file.write(" ".join((date, leveltext, msg, "\n")))
+            msg = " ".join((date, leveltext, msg, "\n"))
+            self._file.write(msg)
     
     # shorthand for Logger.info()
     def __call__(self, *msg):
