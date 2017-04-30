@@ -11,7 +11,11 @@ class BaseCommand:
         self.channel = ""
         self.params = ""
         self.target = ""
+        self.trigger = "trigger"
         self.response = ""
         self.raw_send = ""
         self.livereload = False
+        
+    def init(self):
+        pass
         

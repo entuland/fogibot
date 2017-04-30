@@ -1,3 +1,4 @@
+""" well... just try it """
 import os
 
 from command.basecommand import BaseCommand
