@@ -23,7 +23,6 @@ class Bot:
         self._log.echo = True
 
         self._running = True
-        self._nick_ok = False
         self._livereload = False
         self._pending = []
 
@@ -61,7 +60,7 @@ class Bot:
             return
         
         trigger = parts[0].lower().strip(STRIP_CHARS)
-        if trigger != self._conf.trigger:
+        if trigger != self._conf.trigger and trigger != self._conf.botname:
             return
         
         command = parts[1].lower().strip(STRIP_CHARS)
@@ -105,10 +104,10 @@ class Bot:
                     f"{sender}, sorry, unable to execute '{command}'"
                 )
                 self._log.error(
-                    "Unable to execute command: {command} " 
-                    "sender: {sender} " 
-                    "channel: {channel} " 
-                    "params: {params} " 
+                    f"Unable to execute command: {command} " 
+                    f"sender: {sender} " 
+                    f"channel: {channel} " 
+                    f"params: {params} " 
                 )
                 self._log.error(error)
                 
@@ -121,13 +120,16 @@ class Bot:
             reload(module)
         
         com = module.Command()
+        com.init()
         
         com.owner = self._conf.owner
         com.botname = self._conf.botname
         com.sender = sender
         com.channel = channel
         com.params = params
+        com.trigger = self._conf.trigger
         com.livereload = self._livereload
+        com.stripchars = STRIP_CHARS
         
         com.target = com.channel
         if com.channel == com.botname:
@@ -135,6 +137,7 @@ class Bot:
         
         com.run()
         
+        self._conf.trigger = com.trigger
         self._livereload = com.livereload
         
         if com.target and com.response:
