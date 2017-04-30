@@ -17,7 +17,8 @@ class Command(BaseCommand):
             filename = self._basepath + "/" + file
             if (not os.path.isfile(filename) 
                     or file[-3:] != ".py" 
-                    or file == "basecommand.py"):
+                    or file == "basecommand.py"
+                    or file == "matches.py"):
                 continue
             commands.append(file[0:-3])
         commands.sort()

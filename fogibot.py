@@ -23,7 +23,7 @@ class Bot:
         self._log.echo = True
 
         self._running = True
-        self._livereload = False
+        self._nocache = False
         self._pending = []
 
         self._irc = irc.Connection(conf.host, conf.port, self._log)
@@ -51,17 +51,22 @@ class Bot:
         parts = line.split('PRIVMSG',1)[1].split(':',1)
         channel = parts[0].strip()
         message = parts[1].strip()
+        if self._attempt_command(sender, channel, message):
+            return
+        self.process_command(sender, channel, "matches", message, quiet = True)
         
+
+    def _attempt_command(self, sender, channel, message):
         parts = message.split(" ", 2)
         parts = list(map(str.strip, parts))
         parts = list(filter(None, parts))
         
         if len(parts) < 2:
-            return
+            return False
         
         trigger = parts[0].lower().strip(STRIP_CHARS)
         if trigger != self._conf.trigger and trigger != self._conf.botname:
-            return
+            return False
         
         command = parts[1].lower().strip(STRIP_CHARS)
         params = ""
@@ -69,7 +74,9 @@ class Bot:
             params = parts[2]
         
         self.process_command(sender, channel, command, params)
-
+        return True
+        
+        
     def _new_nick(self):
         self._conf.botname += "_"
         self._conf.trigger += "_"
@@ -89,12 +96,15 @@ class Bot:
         message processing
     ======================================================================== """
 
-    def process_command(self, sender, channel, command, params):
+    def process_command(self, sender, channel, command, params, quiet = False):
         filename = self._basepath + f"/command/{command}.py"
         target = channel
         if channel == self._conf.botname:
             target = sender
 
+        if quiet:
+            target = self._conf.owner
+        
         if command != "basecommand" and os.path.isfile(filename):
             try:
                 self._execute_command(command, sender, channel, params)
@@ -116,7 +126,7 @@ class Bot:
             
     def _execute_command(self, command, sender, channel, params):
         module = import_module("command." + command)
-        if(self._livereload):
+        if(self._nocache):
             reload(module)
         
         com = module.Command()
@@ -128,8 +138,9 @@ class Bot:
         com.channel = channel
         com.params = params
         com.trigger = self._conf.trigger
-        com.livereload = self._livereload
+        com.nocache = self._nocache
         com.stripchars = STRIP_CHARS
+        com.sharing_bins = self._conf.sharing_bins
         
         com.target = com.channel
         if com.channel == com.botname:
@@ -138,7 +149,7 @@ class Bot:
         com.run()
         
         self._conf.trigger = com.trigger
-        self._livereload = com.livereload
+        self._nocache = com.nocache
         
         if com.target and com.response:
             self._irc.send_message(com.target, com.response)

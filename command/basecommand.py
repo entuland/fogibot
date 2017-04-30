@@ -14,7 +14,7 @@ class BaseCommand:
         self.trigger = "trigger"
         self.response = ""
         self.raw_send = ""
-        self.livereload = False
+        self.nocache = False
         
     def init(self):
         pass
