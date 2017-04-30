@@ -49,3 +49,4 @@ def nextPermutation(s):
     s[k], s[j] = s[j], s[k]
         
     return "".join(s[:k+1] + s[k+1:][::-1])
+    
