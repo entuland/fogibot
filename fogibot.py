@@ -16,15 +16,20 @@ class Bot:
     
     def __init__(self, conf):
         self._conf = conf
-        self._running = True
+        self._basepath = os.path.dirname(os.path.realpath(__file__))
+
         self._log = logger.Logger(conf.username + " " + time.strftime("%Y-%m-%d"))
         self._log.level = self._log.ALL
         self._log.echo = True
-        self._irc = irc.Connection(conf.host, conf.port, self._log)
-        self._irc.user(conf.username, conf.password, conf.realname)
-        self._irc.nick(conf.botname)
-        self._basepath = os.path.dirname(os.path.realpath(__file__))
+
+        self._running = True
+        self._nick_ok = False
         self._livereload = False
+        self._pending = []
+
+        self._irc = irc.Connection(conf.host, conf.port, self._log)
+        self._irc.nick(conf.botname)
+        self._irc.user(conf.username, conf.password, conf.realname)
 
     def run(self):
         while self._running:
@@ -33,11 +38,14 @@ class Bot:
                     self._irc.pong(line.split(":", 1)[1].strip())
                     continue
                 self._log(line)
-                if line.find("PRIVMSG") != -1:
+                command = line.split(":", 1)[1].split(" ", 2)[1]
+                if command == "PRIVMSG":
                     self._process_line(line)
-        for x in range(3, 0, -1):
-            print(f"Closing in {x}", flush = True)
-            time.sleep(1)
+                if command == "433":
+                    self._new_nick()
+                if command == "001":
+                    for func in self._pending:
+                        func()
         
     def _process_line(self, line):
         sender = line.split('!',1)[0][1:]
@@ -63,6 +71,21 @@ class Bot:
         
         self.process_command(sender, channel, command, params)
 
+    def _new_nick(self):
+        self._conf.botname += "_"
+        self._conf.trigger += "_"
+        self._irc.nick(self._conf.botname)
+            
+    def join(self, channel):
+        self._pending.append(lambda: 
+            self.process_command(
+                self._conf.owner, 
+                self._conf.botname, 
+                "join",
+                channel
+            )
+        )
+    
     """ ========================================================================
         message processing
     ======================================================================== """

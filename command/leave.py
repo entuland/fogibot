@@ -4,5 +4,5 @@ class Command(BaseCommand):
     
     def run(self):
         if self.owner == self.sender:
-            self.response = f"attempting to join {self.params}"
-            self.raw_send = "JOIN " + self.params
+            self.response = f"attempting to leave {self.params}"
+            self.raw_send = "PART " + self.params
