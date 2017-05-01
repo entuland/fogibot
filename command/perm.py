@@ -1,6 +1,6 @@
 """ computes some data about permutations of the [params] string """
 
-class Command():
+class Command:
         
     def run(self):
         s = self.params.strip()
@@ -9,8 +9,14 @@ class Command():
             return
             
         first = firstPermutation(s)
+        last = first[::-1]
         pos, tot = findPosition(s)        
-        self.response = f"{self.sender}, String: {s}, Position: {pos+1}, Rev. Position: {tot-pos}, Total Permutations: {tot}"
+        self.response = [
+            f"{self.sender}, some permutations data about '{s}':",
+            f"First perm: '{first}', last perm: '{last}'",
+            f"'{s}' position: {pos+1} [{tot-pos} in reversed order]",
+            f"Total permutations: {tot}",
+        ]
 
 def findPosition(s):
     i = 0
