@@ -12,6 +12,10 @@ import utils
 
 STRIP_CHARS = ".:,;<>\"'!?"
 
+# pattern taken from:
+# https://mybuddymichael.com/writings/a-regular-expression-for-irc-messages.html
+IRC_MSG_PATTERN = "^(?:[:](\S+) )?(\S+)(?: (?!:)(.+?))?(?: [:](.+))?$"
+
 class Bot:
     
     def __init__(self, conf):
@@ -33,24 +37,34 @@ class Bot:
     def run(self):
         while self._running:
             for line in self._irc.get_lines():
-                if line.find("PING :") == 0:
-                    self._irc.pong(line.split(":", 1)[1].strip())
+                match = re.search(IRC_MSG_PATTERN, line)
+                if not match:
                     continue
+                    
+                sender = match.group(1)
+                if sender:
+                    sender = sender.split("!")[0]
+                irc_command = match.group(2)
+                channel = match.group(3)
+                message = match.group(4)
+                
+                if irc_command == "PING":
+                    self._irc.pong(message)
+                    continue
+                    
                 self._log(line)
-                command = line.split(":", 1)[1].split(" ", 2)[1]
-                if command == "PRIVMSG":
-                    self._process_line(line)
-                if command == "433":
+                
+                if irc_command == "PRIVMSG":
+                    self._process_line(sender, channel, message)
+                
+                if irc_command == "433":
                     self._new_nick()
-                if command == "001":
+                
+                if irc_command == "001":
                     for func in self._pending:
                         func()
         
-    def _process_line(self, line):
-        sender = line.split('!',1)[0][1:]
-        parts = line.split('PRIVMSG',1)[1].split(':',1)
-        channel = parts[0].strip()
-        message = parts[1].strip()
+    def _process_line(self, sender, channel, message):
         if self._attempt_command(sender, channel, message):
             return
         self.process_command(sender, channel, "matches", message, quiet = True)
@@ -122,7 +136,7 @@ class Bot:
                 self._log.error(error)
                 
         else:
-            self._irc.send_message(target, f"{sender}, type '{self._conf.botname} help'")
+            self._irc.send_message(target, f"{sender}, type '{self._conf.trigger} help'")
             
     def _execute_command(self, command, sender, channel, params):
         module = import_module("command." + command)
