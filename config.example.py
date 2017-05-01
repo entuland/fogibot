@@ -8,8 +8,9 @@ owner = "owner"
 trigger = botname
 sharing_bins = ", ".join((
     "gist.github.com (multiple files support)",
-    "ideone.com (runnable code)",
-    "jsfiddle.net (HTML+CSS+JS showcase)",
+    "cpy.pt (generic pastes)",
+    "jsfiddle.net codepen.io (HTML+CSS+JS showcase)",
     "pasteconf.net (conf files)",
+    "ideone.com (runnable code)",
     "postimage.io (family safe images)",
 ))
