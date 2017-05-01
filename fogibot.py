@@ -184,7 +184,10 @@ class Bot:
         self._nocache = com.nocache
         
         if com.target and com.response:
-            self._irc.send_message(com.target, com.response)
+            if not isinstance(com.response, list):
+                com.response = [com.response]
+            for response in com.response:
+                self._irc.send_message(com.target, response)
         
         if com.raw_send:
             self._irc.raw_send(com.raw_send)
