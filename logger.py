@@ -36,7 +36,6 @@ class Logger:
         os.makedirs(logpath, exist_ok = True)
         filename = logpath + logname + ".log"
         self._file = open(filename, "a", 1, encoding = "utf-8")
-        print("self._file.encoding", self._file.encoding)
 
     # actual writing member
     def __write(self, level, *msg):
