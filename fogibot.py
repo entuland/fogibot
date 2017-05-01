@@ -148,23 +148,36 @@ class Bot:
         if not callable(getattr(com, "run", None)):
             return
         
+        
+        
         com.quit = False
         com.response = ""
         com.raw_send = ""
-        com.owner = self._conf.owner
-        com.botname = self._conf.botname
+                
         com.sender = sender
+        com.owner = self._conf.owner
+
+        com.botname = self._conf.botname
         com.channel = channel
         com.params = params
         com.trigger = self._conf.trigger
         com.nocache = self._nocache
-        com.stripchars = STRIP_CHARS
+        com.strip_chars = STRIP_CHARS
         com.sharing_bins = self._conf.sharing_bins
         
         com.target = com.channel
         if com.channel == com.botname:
             com.target = com.sender
         
+        owner_command = getattr(com, "owner_command", False)
+        com.is_owner = (com.owner == com.sender)
+        if not com.is_owner and owner_command:
+            self._irc.send_message(
+                com.target, 
+                f"{com.sender}, sorry, only {com.owner} can execute this command"
+            )
+            return
+
         com.run()
         
         self._conf.trigger = com.trigger
