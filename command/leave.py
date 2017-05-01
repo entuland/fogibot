@@ -1,7 +1,6 @@
 """ tells the bot to leave the [params] channel - optionally, append ': [reason]' """
-from command.basecommand import BaseCommand
 
-class Command(BaseCommand):
+class Command():
     
     def run(self):
         if self.owner == self.sender:

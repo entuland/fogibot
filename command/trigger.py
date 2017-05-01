@@ -2,9 +2,7 @@
     changes the bot's trigger to [params] (alphanumeric chars only)
 """
 
-from command.basecommand import BaseCommand
-
-class Command(BaseCommand):
+class Command():
     
     def run(self):
         if self.owner == self.sender:

@@ -1,9 +1,8 @@
 """ provides a set of triggers based on any content of the received messages """
-from command.basecommand import BaseCommand
 
 import re
 
-class Command(BaseCommand):
+class Command():
     
     def run(self):
         pasteid = extract_pastebin_pasteid(self.params)

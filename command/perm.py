@@ -1,8 +1,6 @@
 """ computes some data about permutations of the [params] string """
 
-from command.basecommand import BaseCommand
-
-class Command(BaseCommand):
+class Command():
         
     def run(self):
         s = self.params.strip()

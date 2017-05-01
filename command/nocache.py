@@ -1,7 +1,6 @@
 """ prints the status of the nocache flag or sets it to [params] ('on'/'off') """
-from command.basecommand import BaseCommand
 
-class Command(BaseCommand):
+class Command():
     
     def run(self):
         if self.owner == self.sender:

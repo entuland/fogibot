@@ -3,21 +3,16 @@ import os
 from importlib import import_module, reload
 import re
 
-from command.basecommand import BaseCommand
-
-class Command(BaseCommand):
-    
-    def init(self):
-        self._basepath = os.path.dirname(os.path.realpath(__file__))
+class Command():
     
     def run(self):
-        files = os.listdir(self._basepath)
+        basepath = os.path.dirname(os.path.realpath(__file__))
+        files = os.listdir(basepath)
         commands = []
         for file in files:
-            filename = self._basepath + "/" + file
+            filename = basepath + "/" + file
             if (not os.path.isfile(filename) 
-                    or file[-3:] != ".py" 
-                    or file == "basecommand.py"
+                    or file[-3:] != ".py"
                     or file == "matches.py"):
                 continue
             commands.append(file[0:-3])
@@ -32,7 +27,7 @@ class Command(BaseCommand):
     
     def help(self, command):
         module = import_module("command." + command)
-        if(self.livereload):
+        if(self.nocache):
             reload(module)
         doc = module.__doc__
         if not doc:

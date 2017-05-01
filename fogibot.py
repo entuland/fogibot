@@ -144,8 +144,13 @@ class Bot:
             reload(module)
         
         com = module.Command()
-        com.init()
+
+        if not callable(getattr(com, "run", None)):
+            return
         
+        com.quit = False
+        com.response = ""
+        com.raw_send = ""
         com.owner = self._conf.owner
         com.botname = self._conf.botname
         com.sender = sender
