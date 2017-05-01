@@ -60,8 +60,8 @@ class Command:
         pastebin_trig.matches = matches_pastebin_link
         pastebin_trig.response = [
             f"{data.sender}, please avoid using services with ads "
-            "or obnoxious scripts, use one of these for sharing: "
-        ] + data.sharing_bins
+            f"or obnoxious scripts, type '{paste_trig.trigger}?' for advised services"
+        ]
         self._triggers.append(pastebin_trig)
 
 
