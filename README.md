@@ -22,6 +22,4 @@ Features
 Is it live somewhere?
 ---------------------
 
-Yes, when I'm around, the bot can eventually be found on ##fogibot in the 
-Freenode network, hopefully some good operator will let me run it in some more
-crowded channel :)
+Nope, not right now.
